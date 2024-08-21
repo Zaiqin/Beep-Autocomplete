@@ -137,7 +137,7 @@ const CurrencyInput = ({
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isDropdownOpen, filteredCurrencies, highlightedIndex]);
+  }, [isDropdownOpen, filteredCurrencies, highlightedIndex, selectedCurrencies]);
 
   const handleCurrencySelect = (currency: Currency) => {
     let selected: Currency[] = [];
