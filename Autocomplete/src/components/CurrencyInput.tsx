@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { useFloating, shift, offset } from "@floating-ui/react";
 import "tailwindcss/tailwind.css";
 import "./currencyInput.css";
-import LoadingGif from '../assets/loading.gif'
-import SearchIcon from '../assets/search.png'
+import LoadingGif from "../assets/loading.gif";
+import SearchIcon from "../assets/search.png";
 
 type Currency = {
   name: string;
@@ -27,16 +27,29 @@ interface CurrencyInputProps {
 }
 
 const CurrencyInput = ({
-  description, disabled, filterOptions, label, 
-  loading, multiple, onChange, onInputChange, options,
-  placeholder, renderOption, inputText,
+  description,
+  disabled,
+  filterOptions,
+  label,
+  loading,
+  multiple,
+  onChange,
+  onInputChange,
+  options,
+  placeholder,
+  renderOption,
+  inputText,
 }: CurrencyInputProps) => {
   const [filteredCurrencies, setFilteredCurrencies] = useState<Currency[]>([]); // All the currencies
   const [selectedCurrencies, setSelectedCurrencies] = useState<Currency[]>([]); // Currencies that are selected
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false); // store dropdown state
   const [isLoading, setLoading] = useState<boolean>(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+
+  const containerRef = useRef<HTMLDivElement>(null); // The component ref
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null); // Debounce timer
+  const listRef = useRef<HTMLDivElement>(null); // dropdown list ref
+  const arrowRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { x, y, strategy, refs } = useFloating({
     middleware: [offset(4), shift({ padding: 8 })],
@@ -65,20 +78,66 @@ const CurrencyInput = ({
     if (inputText != "") {
       console.log("Filtering");
       setIsDropdownOpen(true);
-      const filtered =
-        inputText == ""
-          ? options // No filters applied as no input
-          : filterOptions // Check if there is a function for filterOption
-          ? filterOptions(options, inputText) // Uses provided filterOption prop
-          : options.filter(
-              (
-                currency // Default filterOption of non case-sensitive partial match
-              ) => currency.name.toLowerCase().includes(inputText.toLowerCase())
-            );
+      const filtered = inputText == "" ? options : 
+      filterOptions ? filterOptions(options, inputText) : 
+      options.filter((currency) => currency.name.toLowerCase().includes(inputText.toLowerCase()));
+      setHighlightedIndex(-1)
       setFilteredCurrencies(filtered);
       setLoading(false);
     }
   };
+
+  const handleKeyDown = (event: { key: string; }) => {
+
+    // Clear any existing timer when inputText changes
+    if (arrowRef.current) clearTimeout(arrowRef.current);
+
+    arrowRef.current = setTimeout(() => {
+      if (isDropdownOpen) {
+        //console.log(highlightedIndex, filteredCurrencies)
+        if (event.key === 'ArrowDown') {
+          setHighlightedIndex((prevIndex) =>
+            prevIndex < filteredCurrencies.length - 1 ? prevIndex + 1 : 0
+          );
+        } else if (event.key === 'ArrowUp') {
+          setHighlightedIndex((prevIndex) =>
+            prevIndex > 0 ? prevIndex - 1 : filteredCurrencies.length-1
+          );
+        } else if (event.key === 'Enter') {
+          if (highlightedIndex >= 0 && highlightedIndex < filteredCurrencies.length) {
+            handleCurrencySelect(filteredCurrencies[highlightedIndex]);
+          }
+        } else if (event.key === 'Escape') {
+          setIsDropdownOpen(false);
+        }
+      }
+    }, 150);
+
+    return () => {
+      if (arrowRef.current) {
+        clearTimeout(arrowRef.current);
+      }
+    };
+  };
+
+  // Dropdown moves to currently selected item
+  useEffect(() => {
+    if (listRef.current && highlightedIndex !== -1) {
+      const currentItem = listRef.current.children[highlightedIndex];
+      if (currentItem) {
+        currentItem.scrollIntoView({ block: 'nearest' });
+      }
+    }
+  }, [highlightedIndex]);
+
+  // console.log(isDropdownOpen, highlightedIndex, filteredCurrencies)
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isDropdownOpen, filteredCurrencies, highlightedIndex]);
 
   const handleCurrencySelect = (currency: Currency) => {
     let selected: Currency[] = [];
@@ -100,13 +159,10 @@ const CurrencyInput = ({
     setSelectedCurrencies(selected);
     if (onChange) onChange(selected); // callback
   };
-
+  
   // onBlur
   const handleClickOutside = (event: MouseEvent) => {
-    if (
-      containerRef.current &&
-      !containerRef.current.contains(event.target as Node)
-    ) {
+    if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
       setIsDropdownOpen(false);
     }
   };
@@ -159,24 +215,35 @@ const CurrencyInput = ({
             style={{ position: strategy, top: y ?? "", left: x ?? "" }}
             className="absolute z-10 mt-11 w-full bg-blue-100 border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"
           >
-            <div className="bg-blue-50 scrollbar dropdown-list">
+            <div
+              className="bg-blue-50 scrollbar dropdown-list"
+              ref={listRef}
+              onKeyUp={handleKeyDown}
+              tabIndex={0}
+            >
               {filteredCurrencies.map((currency, index) => (
                 <div
                   key={currency.name}
                   className={`cursor-pointer px-4 py-2 text-black hover:bg-[#C7DEFD] flex flex-col items-start ${
-                    index % 2 === 0 ? 'bg-blue-50' : 'bg-[#E5F0FF]'
-                  }`}
+                    index % 2 === 0 ? "bg-blue-50" : "bg-[#E5F0FF]"
+                  } ${highlightedIndex === index ? "bg-[#C7DEFD]" : ""}`}
                   onClick={() => handleCurrencySelect(currency)}
                 >
                   <div className="flex items-center">
                     <input
                       type="checkbox"
-                      checked={selectedCurrencies.some(c => c.name === currency.name)}
+                      checked={selectedCurrencies.some(
+                        (c) => c.name === currency.name
+                      )}
                       onChange={() => handleCurrencySelect(currency)}
                       className="mr-4 custom-checkbox"
                       disabled={disabled}
                     />
-                    {renderOption ? (renderOption(currency)) : (<span>{currency.name}</span>)}
+                    {renderOption ? (
+                      renderOption(currency)
+                    ) : (
+                      <span>{currency.name}</span>
+                    )}
                   </div>
                 </div>
               ))}

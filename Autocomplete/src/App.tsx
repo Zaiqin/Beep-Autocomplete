@@ -74,7 +74,7 @@ function App() {
 
   useEffect(() => {
     if (selectedCurrencies.length > 0) console.log(selectedCurrencies)
-    }, [selectedCurrencies])
+  }, [selectedCurrencies])
   
   // For second Currency Input
 
