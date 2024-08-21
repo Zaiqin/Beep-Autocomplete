@@ -30,9 +30,9 @@ function App() {
   }, []);
 
   // Filter by exact match case insensitive
-  const exactMatchFilter = useCallback((options: Currency[], inputValue: string) => {
-    return options.filter(option => option.name.toLowerCase() === inputValue.toLowerCase());
-  }, []);
+  // const exactMatchFilter = useCallback((options: Currency[], inputValue: string) => {
+  //   return options.filter(option => option.name.toLowerCase() === inputValue.toLowerCase());
+  // }, []);
 
   // Filter by Exchange Rate
   const rateFilter = useCallback((options: Currency[], inputValue: string) => {
