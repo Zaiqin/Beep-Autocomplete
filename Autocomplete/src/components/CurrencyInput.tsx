@@ -3,6 +3,7 @@ import { useFloating, shift, offset } from "@floating-ui/react";
 import { FaSearch } from "react-icons/fa";
 import "tailwindcss/tailwind.css";
 import "./currencyInput.css";
+import LoadingGif from '../assets/loading.gif'
 
 type Currency = {
   name: string;
@@ -151,7 +152,7 @@ const CurrencyInput = ({
           {isLoading || loading ? (
             <img
               className="w-10 h-10 ml-3 rounded-md"
-              src="/public/loading.gif"
+              src={LoadingGif}
               alt="Loading"
             />
           ) : (
