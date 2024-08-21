@@ -20,3 +20,7 @@ Autocomplete is built using modern technologies, including:
 - **TailwindCSS**: For designing UI and design elements.
 - **HTML5 and CSS3**: Fundamental web technologies for structuring and styling the application.
 - **TypeScript**: Programming language for interactivity and functionality
+
+## Deployment
+
+This project is also deployed on Vercel [here](https://beep-autocomplete.vercel.app/)
