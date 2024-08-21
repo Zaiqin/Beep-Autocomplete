@@ -151,7 +151,7 @@ const CurrencyInput = ({
           {isLoading || loading ? (
             <img
               className="w-10 h-10 ml-3 rounded-md"
-              src="/src/assets/loading.gif"
+              src="/public/loading.gif"
               alt="Loading"
             />
           ) : (
