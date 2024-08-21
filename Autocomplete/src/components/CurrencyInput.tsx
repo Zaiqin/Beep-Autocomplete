@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useFloating, shift, offset } from "@floating-ui/react";
-import { FaSearch } from "react-icons/fa";
 import "tailwindcss/tailwind.css";
 import "./currencyInput.css";
 import LoadingGif from '../assets/loading.gif'
+import SearchIcon from '../assets/search.png'
 
 type Currency = {
   name: string;
@@ -34,16 +34,15 @@ const CurrencyInput = ({
   const [filteredCurrencies, setFilteredCurrencies] = useState<Currency[]>([]); // All the currencies
   const [selectedCurrencies, setSelectedCurrencies] = useState<Currency[]>([]); // Currencies that are selected
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false); // store dropdown state
-  const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setLoading] = useState<boolean>(false);
-
+  const containerRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null); // Debounce timer
 
   const { x, y, strategy, refs } = useFloating({
     middleware: [offset(4), shift({ padding: 8 })],
   });
 
-  // Change in inputText, options available or filterOptions
+  // Change in inputText
   useEffect(() => {
     inputText ? setLoading(true) : setLoading(false);
     // Clear any existing timer when inputText changes
@@ -129,12 +128,13 @@ const CurrencyInput = ({
       )}
       <div className="relative mb-4">
         <div
-          className={`flex items-center ${
+          className={`flex w-50 items-center ${
             disabled ? "bg-gray-200" : "bg-gray-700"
           } border border-gray-300 rounded-md shadow-sm`}
         >
-          <FaSearch
-            className="w-5 h-5 text-white ml-3 mr-3"
+          <img
+            src={SearchIcon}
+            className="w-4 h-4 text-white ml-3 mr-3"
             aria-hidden="true"
           />
           <input
@@ -149,14 +149,8 @@ const CurrencyInput = ({
             } text-gray-100 border-0 rounded-md shadow-sm focus:outline-none`}
             placeholder={disabled ? "" : placeholder}
           />
-          {isLoading || loading ? (
-            <img
-              className="w-10 h-10 ml-3 rounded-md"
-              src={LoadingGif}
-              alt="Loading"
-            />
-          ) : (
-            <div className="w-10 h-10 ml-3 rounded-md"></div>
+          {(isLoading || loading) && (
+            <img className="w-10 h-10 ml-3 rounded-md" src={LoadingGif} />
           )}
         </div>
         {isDropdownOpen && filteredCurrencies.length > 0 && inputText != "" && (
@@ -182,11 +176,7 @@ const CurrencyInput = ({
                       className="mr-4 custom-checkbox"
                       disabled={disabled}
                     />
-                    {renderOption ? (
-                      renderOption(currency)
-                    ) : (
-                      <span>{currency.name}</span>
-                    )}
+                    {renderOption ? (renderOption(currency)) : (<span>{currency.name}</span>)}
                   </div>
                 </div>
               ))}

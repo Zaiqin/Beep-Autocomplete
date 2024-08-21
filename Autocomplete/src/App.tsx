@@ -131,7 +131,7 @@ function App() {
           onChange={handleOnChange}  
           onInputChange={handleInputChange}  
           options={currencyList}  
-          placeholder="Search for a currency..."  
+          placeholder="Search currency..."  
           renderOption={twoLinesRender}  
           value={selectedCurrencies}  
           inputText={inputText}  
@@ -146,7 +146,7 @@ function App() {
           onChange={handleOnChangeTwo}  
           onInputChange={handleInputChangeTwo}  
           options={currencyListTwo}  
-          placeholder="Search for a currency..."  
+          placeholder="Search currency..."  
           renderOption={oneLineRender}  
           value={selectedCurrenciesTwo}  
           inputText={inputTextTwo}  
